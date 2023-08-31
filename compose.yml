@@ -1,0 +1,37 @@
+services:
+  backend:
+    build:
+      context: App
+    container_name: 'line-demo'
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - ASPNETCORE_URLS=http://+:80;
+      - ASPNETCORE_ENVIRONMENT=Development
+    ports:
+      - 5101:80
+
+  db:
+    image: mariadb:10.6.5
+    command: '--default-authentication-plugin=mysql_native_password'
+    container_name: 'line-demo-db'
+    restart: always
+    healthcheck:
+      test: ['CMD-SHELL', 'mysqladmin ping -h 127.0.0.1 --password="line_demo_root" --silent']
+      interval: 3s
+      retries: 5
+      start_period: 30s
+    volumes:
+      - db-data:/var/lib/mysql
+    ports:
+      - 3400:3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=line_demo_root
+      - MYSQL_DATABASE=iotdata
+      - MYSQL_USER=line_demo_admin
+      - MYSQL_PASSWORD=g7PmGpvLefsFGUi4SSbCpZKSxD6d5YBT
+
+volumes:
+  db-data:
